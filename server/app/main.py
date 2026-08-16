@@ -8,6 +8,7 @@ from sqlalchemy import text
 from app.agent.graph import AgentGraph
 from app.agent.proactive import ProactiveMessenger
 from app.api.routes import router
+from app.config import get_settings
 from app.db.models import Base
 from app.db.session import engine
 
@@ -37,10 +38,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="AI Agent - Personality Conversationalist", lifespan=lifespan)
 
 # No auth in this app -- the client identifies itself with a locally generated
-# user id, so any origin can be allowed to call the API.
+# user id. ALLOWED_ORIGINS defaults to "*" but should be set to the deployed
+# Netlify origin(s) in production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=get_settings().cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

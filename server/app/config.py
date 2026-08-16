@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,8 +8,28 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # Postgres
+    # Render (and most managed Postgres hosts) hand out a single
+    # "postgres://" / "postgresql://" connection string. Accept that as-is
+    # for both vars and normalize it to the driver-specific scheme each
+    # engine needs.
     database_url: str = "postgresql+asyncpg://postgres:postgres@db:5432/agent"
     database_url_sync: str = "postgresql://postgres:postgres@db:5432/agent"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalize_async_url(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return "postgresql+asyncpg://" + v[len("postgres://") :]
+        if v.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + v[len("postgresql://") :]
+        return v
+
+    @field_validator("database_url_sync", mode="before")
+    @classmethod
+    def _normalize_sync_url(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return "postgresql://" + v[len("postgres://") :]
+        return v
 
     # Ollama Cloud (LLM)
     ollama_base_url: str = "https://ollama.com"
@@ -33,6 +54,15 @@ class Settings(BaseSettings):
     # API
     api_host: str = "0.0.0.0"
     api_port: int = 8000
+    # Comma-separated list of allowed origins, e.g. "https://myapp.netlify.app".
+    # Defaults to "*" since this app has no auth (see main.py CORS setup).
+    allowed_origins: str = "*"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        if self.allowed_origins.strip() == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
 
 @lru_cache

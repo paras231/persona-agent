@@ -1,0 +1,51 @@
+databases:
+  - name: persona-agent-db
+    plan: free
+    postgresMajorVersion: 16
+
+services:
+  - type: web
+    name: persona-agent-api
+    runtime: python
+    plan: free
+    rootDir: server
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        fromDatabase:
+          name: persona-agent-db
+          property: connectionString
+      - key: DATABASE_URL_SYNC
+        fromDatabase:
+          name: persona-agent-db
+          property: connectionString
+      - key: OLLAMA_BASE_URL
+        value: https://ollama.com
+      - key: OLLAMA_API_KEY
+        sync: false
+      - key: OLLAMA_MODEL
+        value: gpt-oss:120b
+      - key: LLM_TEMPERATURE
+        value: "0.7"
+      - key: HF_API_TOKEN
+        sync: false
+      - key: HF_EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: EMBEDDING_DIM
+        value: "384"
+      - key: SHORT_TERM_WINDOW
+        value: "12"
+      - key: LONG_TERM_TOP_K
+        value: "5"
+      - key: MEMORY_IMPORTANCE_THRESHOLD
+        value: "0.5"
+      - key: PROACTIVE_INACTIVITY_MINUTES
+        value: "720"
+      - key: PROACTIVE_CHECK_INTERVAL_SECONDS
+        value: "300"
+      - key: ALLOWED_ORIGINS
+        value: https://your-app.netlify.app
