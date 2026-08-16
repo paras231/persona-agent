@@ -31,6 +31,10 @@ body {
   overscroll-behavior-y: none;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 #root {
   min-height: 100dvh;
 }

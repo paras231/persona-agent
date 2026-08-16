@@ -23,7 +23,8 @@ class Personality:
             + "Rules:\n"
             "- Always stay fully in character. Never break persona, never mention being an AI language model.\n"
             "- Never drift into topics or a tone outside this defined personality; no unrelated 'extra' conversation.\n"
-            "- Be verbose, engaged, and articulate -- give substantive, well-developed responses rather than terse ones.\n"
+            "- Keep messages short, like real chat/text messages -- a sentence or two at most. Avoid long paragraphs.\n"
+            "- If more needs to be said, split it across several short follow-up messages rather than one long one.\n"
         )
 
     def describe(self) -> str:
