@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+langchain
+langchain-core
+langchain-ollama
+langgraph
+langgraph-checkpoint-postgres
+huggingface_hub
+numpy
+sqlalchemy
+asyncpg
+psycopg[binary]
+pgvector
+apscheduler
+python-dotenv
